@@ -21,14 +21,11 @@ Select "Class"
 Paste this code:
 
 package com.example.apppractice
-
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateListOf
-
 class TodoViewModel : ViewModel() {
     var tasks = mutableStateListOf<String>()
         private set
-
     fun addTask(task: String) {
         tasks.add(task)
     }
@@ -46,7 +43,6 @@ Select "File"
 Paste the code
 
 package com.example.apppractice
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -66,12 +62,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-
-
 @Composable
 fun TodoApp(viewModel: TodoViewModel) {
     var text by remember { mutableStateOf("") }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -92,12 +85,9 @@ fun TodoApp(viewModel: TodoViewModel) {
                 }
             )
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         Text("Tasks:", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-
         for (task in viewModel.tasks) {
             Text("• $task")
         }
@@ -106,17 +96,14 @@ fun TodoApp(viewModel: TodoViewModel) {
 
 
 Step4: Update MainActivity.kt
-package com.example.apppractice
 
+
+package com.example.apppractice
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apppractice.ui.theme.APPPRACTICETheme
-
-
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
