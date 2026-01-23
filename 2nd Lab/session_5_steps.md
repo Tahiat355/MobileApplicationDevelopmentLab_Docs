@@ -1,48 +1,64 @@
-Step 1: Add Dependencies
 
-Open build.gradle.kts (Module :app)
-Find the dependencies block
-Add these lines:
+# 📝 Todo App Setup Guide (Jetpack Compose + ViewModel)
 
-kotlinimplementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+This guide walks through adding dependencies, creating a ViewModel, setting up the UI, and connecting everything in `MainActivity`.
+
+---
+
+## Step 1: Add Dependencies
+
+Open `build.gradle.kts (Module :app)`
+
+Find the `dependencies` block and add these lines:
+
+```kotlin
+implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 implementation("androidx.activity:activity-compose:1.7.2")
+```
 
-Click "Sync Now" at the top right when the yellow banner appears
+Click **"Sync Now"** at the top right when the yellow banner appears.
 
+---
 
+## Step 2: Create the ViewModel Class
 
+Right-click on `com.example.apppractice` (in `kotlin+java` folder)
+**New → Kotlin Class/File**
+Name it: `TodoViewModel`
+Select **"Class"**
 
-Step 2: Create the ViewModel Class
-
-Right-click on com.example.apppractice (in kotlin+java folder)
-New → Kotlin Class/File
-Name it: TodoViewModel
-Select "Class"
 Paste this code:
 
+```kotlin
 package com.example.apppractice
+
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateListOf
+
 class TodoViewModel : ViewModel() {
     var tasks = mutableStateListOf<String>()
         private set
+
     fun addTask(task: String) {
         tasks.add(task)
     }
 }
+```
 
+---
 
+## Step 3: Create Separate File
 
+Right-click on `com.example.apppractice`
+**New → Kotlin Class/File**
+Name it: `TodoApp`
+Select **"File"**
 
-Step 3: Create Separate File
+Paste this code:
 
-Right-click on com.example.apppractice
-New → Kotlin Class/File
-Name it: TodoApp
-Select "File"
-Paste the code
-
+```kotlin
 package com.example.apppractice
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,9 +78,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+
 @Composable
 fun TodoApp(viewModel: TodoViewModel) {
     var text by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,25 +103,33 @@ fun TodoApp(viewModel: TodoViewModel) {
                 }
             )
         )
+
         Spacer(modifier = Modifier.height(16.dp))
         Text("Tasks:", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
+
         for (task in viewModel.tasks) {
             Text("• $task")
         }
     }
 }
+```
 
+---
 
-Step4: Update MainActivity.kt
+## Step 4: Update `MainActivity.kt`
 
+Replace your `MainActivity.kt` with this:
 
+```kotlin
 package com.example.apppractice
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apppractice.ui.theme.APPPRACTICETheme
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,5 +139,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+```
 
+---
 
+If you want, I can also add a **preview section, screenshots section, and project structure** to make your README look even more professional for GitHub ⭐
