@@ -398,6 +398,3 @@ class MainActivity : ComponentActivity() {
 
 ---
 
-## Everything OK! ✅
-
-Your Weather App is ready to use.
