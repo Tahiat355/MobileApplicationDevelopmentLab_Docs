@@ -54,7 +54,7 @@ Create a new package named **`api`** inside `com.example.weatherapp`.
 
 ### 3a. Create Data Models (`WeatherModel.kt`)
 
-Since the data model code wasn't explicitly provided but used in WeatherPage, we need to create the data classes to match the API response structure. Create a file `api/WeatherModel.kt`:
+Since the data model code wasn't explicitly provided but used in WeatherPage, we need to create the data classes to match the API response structure. Create a new kotlin class file `api/WeatherModel.kt`:
 
 ```kotlin
 package com.example.weatherapp.api
