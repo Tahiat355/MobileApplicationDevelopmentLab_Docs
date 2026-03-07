@@ -337,6 +337,201 @@ app/
 
 ---
 
+## For adding multiple values and  displaying as  list use this `MainActivity.kt`
+
+Replace the contents of `MainActivity.kt` with the following:
+
+```kotlin
+package com.example.read_write
+
+import android.content.Context
+import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.read_write.ui.theme.Read_writeTheme
+import com.google.firebase.database.*
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            Read_writeTheme {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    val databaseReference = FirebaseDatabase.getInstance().getReference("StudentInfo")
+                    firebaseUI(LocalContext.current, databaseReference)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun firebaseUI(context: Context, databaseReference: DatabaseReference) {
+    var name by remember { mutableStateOf("") }
+    var rollNo by remember { mutableStateOf("") }
+    var studentList by remember { mutableStateOf<List<StudentObj>>(emptyList()) }
+    var showList by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Firebase Database",
+            modifier = Modifier.padding(15.dp),
+            style = TextStyle(color = Color.Black, fontSize = 25.sp),
+            fontWeight = FontWeight.Bold
+        )
+
+        TextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholder = { Text("Enter your name") },
+            modifier = Modifier
+                .padding(horizontal = 15.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            textStyle = TextStyle(color = Color.Black, fontSize = 15.sp),
+            singleLine = true
+        )
+
+        TextField(
+            value = rollNo,
+            onValueChange = { rollNo = it },
+            placeholder = { Text("Enter your roll number") },
+            modifier = Modifier
+                .padding(horizontal = 15.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            textStyle = TextStyle(color = Color.Black, fontSize = 15.sp),
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // ADD button — uses push() to append a new entry each time
+        Button(
+            onClick = {
+                if (name.isBlank() || rollNo.isBlank()) {
+                    Toast.makeText(context, "Please fill in both fields", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                val studObj = StudentObj(name, rollNo)
+                // push() creates a unique key so entries accumulate instead of overwriting
+                databaseReference.push().setValue(studObj)
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Added: $name ($rollNo)", Toast.LENGTH_SHORT).show()
+                        name = ""
+                        rollNo = ""
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Failed to add data", Toast.LENGTH_SHORT).show()
+                    }
+            },
+            modifier = Modifier
+                .padding(horizontal = 18.dp, vertical = 6.dp)
+                .fillMaxWidth()
+        ) {
+            Text(text = "Add data to Firebase", modifier = Modifier.padding(7.dp))
+        }
+
+        // READ button — fetches all children and shows them as a list
+        Button(
+            onClick = {
+                databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val list = mutableListOf<StudentObj>()
+                        for (child in snapshot.children) {
+                            val studentName = child.child("studentName").getValue(String::class.java) ?: ""
+                            val studentRoll = child.child("studentRollNumber").getValue(String::class.java) ?: ""
+                            list.add(StudentObj(studentName, studentRoll))
+                        }
+                        studentList = list
+                        showList = true
+                        if (list.isEmpty()) {
+                            Toast.makeText(context, "No data found", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Toast.makeText(context, "Failed to read data", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            },
+            modifier = Modifier
+                .padding(horizontal = 18.dp, vertical = 6.dp)
+                .fillMaxWidth()
+        ) {
+            Text(text = "Read data from Firebase", modifier = Modifier.padding(7.dp))
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Student list display
+        if (showList) {
+            Text(
+                text = "Student List (${studentList.size})",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
+            ) {
+                items(studentList) { student ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                text = "Name: ${student.studentName}",
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                text = "Roll No: ${student.studentRollNumber}",
+                                fontSize = 13.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+---
+
+
 ## Troubleshooting
 
 | Problem | Solution |
