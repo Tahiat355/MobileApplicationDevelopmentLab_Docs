@@ -528,8 +528,7 @@ fun firebaseUI(context: Context, databaseReference: DatabaseReference) {
     }
 }
 
-
----
+```
 
 
 ## Troubleshooting
